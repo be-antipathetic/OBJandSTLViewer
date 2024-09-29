@@ -1,0 +1,2 @@
+# OBJandSTLViewer
+使用qt读取OBJ和STL文件并利用OpenGl渲染展示
