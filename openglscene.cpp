@@ -28,6 +28,7 @@ const float GRID_SIZE = 100.f;
 const float CAMERA_DISTANCE = 16.0f;
 const float DEG2RAD         = 3.141593f / 180;
 
+//定义全局静态函数
 static Model *loadModel(const QString &filePath)
 {
     return new Model(filePath);
@@ -36,6 +37,7 @@ static Model *loadModel(const QString &filePath)
 //========================================================
 OpenGLScene::OpenGLScene(QWidget *parent)
     : QGraphicsScene(parent)
+    //初始化列表成员
     , m_wireframeEnabled(false)
     , m_normalsEnabled(false)
     , m_modelColor(153, 255, 0)
@@ -54,6 +56,9 @@ OpenGLScene::OpenGLScene(QWidget *parent)
 #ifndef QT_NO_CONCURRENT
     connect(&m_modelLoader, SIGNAL(finished()), this, SLOT(modelLoaded()));
 #endif
+
+    //调试：直接加载海面模型
+    loaddefaultModel("G:\\Desktop\\stl\\sea.stl");
 
     // ================= Model info Dialog ===================
     QWidget *statistics = createDialog(tr("Model info"));
@@ -642,8 +647,12 @@ void OpenGLScene::drawBackground(QPainter *painter, const QRectF &)
     // }
 
     // 渲染所有模型
-    for (const auto& model : m_models) {
+    for (auto i = m_models.begin(); i != m_models.end(); ++i){
+         Model* model = i.value();
         if (model) {
+            if (i.key() == "Model") {
+                model->drawBoundingBox(); // 调用 drawboundingbox 方法
+            }
             // 调整光照或位置以避免模型重叠 (可选)
             const float pos[] = { float(m_lightItem->x() - width() / 2), float(height() / 2 - m_lightItem->y()), 512, 0 };
             glLightfv(GL_LIGHT0, GL_POSITION, pos);
@@ -828,9 +837,27 @@ void OpenGLScene::loadModel(const QString &filePath)
     m_modelLoader.setFuture(QtConcurrent::run(::loadModel, filePath));
 #else
     auto model = ::loadModel(filePath);
-    setModel(model);
+    setModel(model,"Model");
     modelLoaded();
 #endif
+}
+
+void OpenGLScene::loaddefaultModel(const QString &filePath)
+{
+    if (filePath.isEmpty())
+    {
+        return;
+    }
+
+    QApplication::setOverrideCursor(Qt::BusyCursor);
+#ifndef QT_NO_CONCURRENT
+    m_modelLoader.setFuture(QtConcurrent::run(::loadModel, filePath));
+#else
+    auto model = ::loadModel(filePath);
+    setModel(model,"Sea");
+    modelLoaded();
+#endif
+
 }
 
 void OpenGLScene::modelLoaded()
@@ -847,7 +874,7 @@ void OpenGLScene::enableWireframe(bool enabled)
     update();
 }
 
-void OpenGLScene::setModel(Model *model)
+void OpenGLScene::setModel(Model *model,const QString keystring)
 {
     // delete m_model;
     // m_model = model;
@@ -856,7 +883,8 @@ void OpenGLScene::setModel(Model *model)
         return;
     }
     // 添加新模型到列表中
-    m_models.append(model);
+    //m_models.append(model);
+    m_models.insert(keystring,model);
 
     // m_labels[0]->setText(tr("File:   %0").arg(m_model->fileName()));
     // m_labels[1]->setText(tr("Points: %0").arg(m_model->points()));
@@ -980,10 +1008,11 @@ void OpenGLScene::translateX(int value)
     QMatrix4x4 m;
     m.translate(value, 0, 0);  // 在 X 方向上平移
 
-    // 遍历 m_models 列表，对每个模型应用 transform
-    for (int i = 0; i < m_models.size(); ++i)
+    // 遍历 m_models QMap，对每个模型应用 transform
+    QMap<QString, Model*>::iterator i;
+    for (i = m_models.begin(); i != m_models.end(); ++i)
     {
-        Model* model = m_models[i];
+        Model* model = i.value(); // 获取 QMap 中的值，即模型指针
         if (model) {
             model->transform(m);  // 应用平移变换到每个模型
         }
@@ -999,11 +1028,13 @@ void OpenGLScene::translateY(int value)
     QMatrix4x4 m;
     m.translate(0, value, 0);
     // m_model->transform(m);
-    for (int i = 0; i < m_models.size(); ++i)
+    // 遍历 m_models QMap，对每个模型应用 transform
+    QMap<QString, Model*>::iterator i;
+    for (i = m_models.begin(); i != m_models.end(); ++i)
     {
-        Model* model = m_models[i];
+        Model* model = i.value(); // 获取 QMap 中的值，即模型指针
         if (model) {
-            model->transform(m);
+            model->transform(m);  // 应用平移变换到每个模型
         }
     }
     update();
@@ -1015,11 +1046,13 @@ void OpenGLScene::translateZ(int value)
     QMatrix4x4 m;
     m.translate(0, 0, value);
     // m_model->transform(m);
-    for (int i = 0; i < m_models.size(); ++i)
+    // 遍历 m_models QMap，对每个模型应用 transform
+    QMap<QString, Model*>::iterator i;
+    for (i = m_models.begin(); i != m_models.end(); ++i)
     {
-        Model* model = m_models[i];
+        Model* model = i.value(); // 获取 QMap 中的值，即模型指针
         if (model) {
-            model->transform(m);
+            model->transform(m);  // 应用平移变换到每个模型
         }
     }
     update();
@@ -1031,11 +1064,13 @@ void OpenGLScene::rotateX(int value)
     QMatrix4x4 m;
     m.rotate(value, 1, 0, 0);
     // m_model->transform(m);
-    for (int i = 0; i < m_models.size(); ++i)
+    // 遍历 m_models QMap，对每个模型应用 transform
+    QMap<QString, Model*>::iterator i;
+    for (i = m_models.begin(); i != m_models.end(); ++i)
     {
-        Model* model = m_models[i];
+        Model* model = i.value(); // 获取 QMap 中的值，即模型指针
         if (model) {
-            model->transform(m);
+            model->transform(m);  // 应用平移变换到每个模型
         }
     }
 
@@ -1048,11 +1083,13 @@ void OpenGLScene::rotateY(int value)
     QMatrix4x4 m;
     m.rotate(value, 0, 1, 0);
     // m_model->transform(m);
-    for (int i = 0; i < m_models.size(); ++i)
+    // 遍历 m_models QMap，对每个模型应用 transform
+    QMap<QString, Model*>::iterator i;
+    for (i = m_models.begin(); i != m_models.end(); ++i)
     {
-        Model* model = m_models[i];
+        Model* model = i.value(); // 获取 QMap 中的值，即模型指针
         if (model) {
-            model->transform(m);
+            model->transform(m);  // 应用平移变换到每个模型
         }
     }
 
@@ -1065,11 +1102,13 @@ void OpenGLScene::rotateZ(int value)
     QMatrix4x4 m;
     m.rotate(value, 0, 0, 1);
     // m_model->transform(m);
-    for (int i = 0; i < m_models.size(); ++i)
+    // 遍历 m_models QMap，对每个模型应用 transform
+    QMap<QString, Model*>::iterator i;
+    for (i = m_models.begin(); i != m_models.end(); ++i)
     {
-        Model* model = m_models[i];
+        Model* model = i.value(); // 获取 QMap 中的值，即模型指针
         if (model) {
-            model->transform(m);
+            model->transform(m);  // 应用平移变换到每个模型
         }
     }
 
@@ -1083,14 +1122,28 @@ void OpenGLScene::scale(double value)
     QMatrix4x4 m;
     m.scale(value, value, value);
     // m_model->transform(m);
-    for (int i = 0; i < m_models.size(); ++i)
+    // 遍历 m_models QMap，对每个模型应用 transform
+    QMap<QString, Model*>::iterator i;
+    for (i = m_models.begin(); i != m_models.end(); ++i)
     {
-        Model* model = m_models[i];
+        Model* model = i.value(); // 获取 QMap 中的值，即模型指针
         if (model) {
-            model->transform(m);
+            model->transform(m);  // 应用平移变换到每个模型
         }
     }
     update();
 }
-
+//清空模型容器
+void OpenGLScene::clearModels()
+{
+    // 使用迭代器遍历 QMap
+    auto i = m_models.begin();
+    while (i != m_models.end()) {
+        if (i.key() == "Model") {
+            i = m_models.erase(i); // 删除键为 "Model" 的模型
+        } else {
+            ++i;
+        }
+    }
+}
 

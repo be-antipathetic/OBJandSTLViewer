@@ -48,6 +48,7 @@
      <string>文件</string>
     </property>
     <addaction name="actionOpen"/>
+    <addaction name="actionClearModels"/>
    </widget>
    <widget class="QMenu" name="menuSetting">
     <property name="title">
@@ -78,6 +79,11 @@
   <action name="actionwireframe">
    <property name="text">
     <string>展示框架</string>
+   </property>
+  </action>
+  <action name="actionClearModels">
+   <property name="text">
+    <string>清除模型</string>
    </property>
   </action>
  </widget>

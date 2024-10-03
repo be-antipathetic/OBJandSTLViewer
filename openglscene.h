@@ -14,6 +14,7 @@
 #include <QTime>
 #include <QGLShaderProgram>
 #include <QList>
+#include <QMap>
 
 // 通过控制宏定义 QT_NO_CONCURRENT 来禁用多线程技术
 #define QT_NO_CONCURRENT
@@ -48,8 +49,15 @@ public slots:
     void setModelColor();
     void setBackgroundColor();
     void openloadModel();
+    //从文件选择窗口加载模型文件
     void loadModel(const QString &filePath);
+    //根据发送来的路径加载模型文件,计算出的海模型
+    void loaddefaultModel(const QString &filepath);
     void modelLoaded();
+
+    //清空 Map 模型容器
+    void clearModels();
+
     //model control slots
     void translateX(int value);
     void translateY(int value);
@@ -73,8 +81,8 @@ private:
     QHBoxLayout * createSpinBox(QString label, int rangeFrom, int rangeTo, const char *member);
     QHBoxLayout * createDoubleSpinBox(QString label, double rangeFrom, double rangeTo, double singleStep, const char *member);
 
-    //加载模型 setmodel
-    void setModel(Model *model);
+    //加载模型 setmodel, keystring 代表 model 类的键值
+    void setModel(Model *model,const QString keystring);
 
     bool m_wireframeEnabled;
     bool m_normalsEnabled;
@@ -85,7 +93,8 @@ private:
 
     //模型对象
     // Model *m_model;
-    QList<Model*> m_models;
+    //QList<Model*> m_models;
+    QMap<QString,Model*>m_models;
 
     //用来展示标签，展示文件名，点、面、线的数量
     QLabel *m_labels[4];

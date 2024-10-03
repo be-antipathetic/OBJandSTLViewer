@@ -138,8 +138,6 @@ void Model::render(bool wireframe, bool normals)
     //禁用顶点数组
     glDisableClientState(GL_VERTEX_ARRAY);
 
-    drawBoundingBox();
-
     glPopMatrix();
 
     glEnable(GL_LIGHTING);
@@ -350,7 +348,9 @@ void Model::drawBoundingBox()
 {
     //绘制模型的包围盒
 
-    glColor3f(1.0f, 0.647f, 0.0f);
+    // 禁用光照
+    glDisable(GL_LIGHTING);
+    glColor3f(0.7f, 0.7f, 0.7f);  // 深一点灰色
 
     //draw front plane
     glBegin(GL_LINE_LOOP);
@@ -380,108 +380,92 @@ void Model::drawBoundingBox()
     glVertex3f(m_min.x(), m_min.y(), m_max.z());
     glVertex3f(m_max.x(), m_min.y(), m_min.z());
     glVertex3f(m_max.x(), m_min.y(), m_max.z());
+    glEnd();
+
 
     //开始绘制包围盒内部虚线
 
-    //利用包围盒中心点 m_center 作为起点绘制
+    // 使用浅灰色绘制包围盒
+    glColor3f(0.7f, 0.7f, 0.7f);  // 深一点灰色
 
+    // 设置虚线模式
+    glEnable(GL_LINE_STIPPLE);
+    glLineStipple(1, 0x00FF); // 1表示每个点重复1次，0x00FF表示虚线模式
 
+    // 将包围盒分割成 n * n * n 个小块
+    int n = 10; // 分成10个小块
+    float dx = (m_max.x() - m_min.x()) / n;
+    float dy = (m_max.y() - m_min.y()) / n;
+    float dz = (m_max.z() - m_min.z()) / n;
 
+    // 遍历每个小块并绘制包围盒
+    for (int i = 0; i < n; ++i)
+    {
+        for (int j = 0; j < n; ++j)
+        {
+            for (int k = 0; k < n; ++k)
+            {
+                // 当前小块的最小和最大边界
+                QVector3D minCube = m_min + QVector3D(i * dx, j * dy, k * dz);
+                QVector3D maxCube = minCube + QVector3D(dx, dy, dz);
 
+                // 绘制小块的边缘
+                glBegin(GL_LINES);
+
+                // 绘制底面
+                // 底面
+                glVertex3f(minCube.x(), minCube.y(), minCube.z());
+                glVertex3f(maxCube.x(), minCube.y(), minCube.z());
+
+                glVertex3f(maxCube.x(), minCube.y(), minCube.z());
+                glVertex3f(maxCube.x(), maxCube.y(), minCube.z());
+
+                glVertex3f(maxCube.x(), maxCube.y(), minCube.z());
+                glVertex3f(minCube.x(), maxCube.y(), minCube.z());
+
+                glVertex3f(minCube.x(), maxCube.y(), minCube.z());
+                glVertex3f(minCube.x(), minCube.y(), minCube.z());
+
+                // 顶面
+                glVertex3f(minCube.x(), minCube.y(), maxCube.z());
+                glVertex3f(maxCube.x(), minCube.y(), maxCube.z());
+
+                glVertex3f(maxCube.x(), minCube.y(), maxCube.z());
+                glVertex3f(maxCube.x(), maxCube.y(), maxCube.z());
+
+                glVertex3f(maxCube.x(), maxCube.y(), maxCube.z());
+                glVertex3f(minCube.x(), maxCube.y(), maxCube.z());
+
+                glVertex3f(minCube.x(), maxCube.y(), maxCube.z());
+                glVertex3f(minCube.x(), minCube.y(), maxCube.z());
+
+                // 连接底面和顶面
+                glVertex3f(minCube.x(), minCube.y(), minCube.z());
+                glVertex3f(minCube.x(), minCube.y(), maxCube.z());
+
+                glVertex3f(maxCube.x(), minCube.y(), minCube.z());
+                glVertex3f(maxCube.x(), minCube.y(), maxCube.z());
+
+                glVertex3f(maxCube.x(), maxCube.y(), minCube.z());
+                glVertex3f(maxCube.x(), maxCube.y(), maxCube.z());
+
+                glVertex3f(minCube.x(), maxCube.y(), minCube.z());
+                glVertex3f(minCube.x(), maxCube.y(), maxCube.z());
+                glEnd();
+            }
+        }
+    }
+
+    // 禁用虚线模式
+    glDisable(GL_LINE_STIPPLE);
+
+    // 重新启用光照
+    glEnable(GL_LIGHTING);
+
+    //结束绘制
     glEnd();
 
 }
-
-// void Model::drawBoundingBox()
-// {
-//     // 获取模型的中心点坐标
-//     QVector3D center = (m_max + m_min) / 2;
-
-//     // 获取包围盒的最小和最大边界
-//     QVector3D minBound = m_min;
-//     QVector3D maxBound = m_max;
-
-//     // 禁用光照
-//     glDisable(GL_LIGHTING);
-
-//     // 使用橙色绘制包围盒
-//     glColor3f(1.0f, 0.647f, 0.0f);
-
-//     // 设置虚线模式
-//     glEnable(GL_LINE_STIPPLE);
-//     glLineStipple(1, 0x00FF); // 1表示每个点重复1次，0x00FF表示虚线模式
-
-//     // 将包围盒分割成 n * n * n 个小块
-//     int n = 10; // 分成10个小块
-//     float dx = (maxBound.x() - minBound.x()) / n;
-//     float dy = (maxBound.y() - minBound.y()) / n;
-//     float dz = (maxBound.z() - minBound.z()) / n;
-
-//     // 遍历每个小块并绘制包围盒
-//     for (int i = 0; i < n; ++i)
-//     {
-//         for (int j = 0; j < n; ++j)
-//         {
-//             for (int k = 0; k < n; ++k)
-//             {
-//                 // 当前小块的最小和最大边界
-//                 QVector3D minCube = minBound + QVector3D(i * dx, j * dy, k * dz);
-//                 QVector3D maxCube = minCube + QVector3D(dx, dy, dz);
-
-//                 // 绘制小块的边缘
-//                 glBegin(GL_LINES);
-
-//                 // 绘制底面
-//                 glVertex3f(minCube.x() - center.x(), minCube.y() - center.y(), minCube.z() - center.z());
-//                 glVertex3f(maxCube.x() - center.x(), minCube.y() - center.y(), minCube.z() - center.z());
-
-//                 glVertex3f(maxCube.x() - center.x(), minCube.y() - center.y(), minCube.z() - center.z());
-//                 glVertex3f(maxCube.x() - center.x(), maxCube.y() - center.y(), minCube.z() - center.z());
-
-//                 glVertex3f(maxCube.x() - center.x(), maxCube.y() - center.y(), minCube.z() - center.z());
-//                 glVertex3f(minCube.x() - center.x(), maxCube.y() - center.y(), minCube.z() - center.z());
-
-//                 glVertex3f(minCube.x() - center.x(), maxCube.y() - center.y(), minCube.z() - center.z());
-//                 glVertex3f(minCube.x() - center.x(), minCube.y() - center.y(), minCube.z() - center.z());
-
-//                 // 绘制顶面
-//                 glVertex3f(minCube.x() - center.x(), minCube.y() - center.y(), maxCube.z() - center.z());
-//                 glVertex3f(maxCube.x() - center.x(), minCube.y() - center.y(), maxCube.z() - center.z());
-
-//                 glVertex3f(maxCube.x() - center.x(), minCube.y() - center.y(), maxCube.z() - center.z());
-//                 glVertex3f(maxCube.x() - center.x(), maxCube.y() - center.y(), maxCube.z() - center.z());
-
-//                 glVertex3f(maxCube.x() - center.x(), maxCube.y() - center.y(), maxCube.z() - center.z());
-//                 glVertex3f(minCube.x() - center.x(), maxCube.y() - center.y(), maxCube.z() - center.z());
-
-//                 glVertex3f(minCube.x() - center.x(), maxCube.y() - center.y(), maxCube.z() - center.z());
-//                 glVertex3f(minCube.x() - center.x(), minCube.y() - center.y(), maxCube.z() - center.z());
-
-//                 // 连接底面和顶面
-//                 glVertex3f(minCube.x() - center.x(), minCube.y() - center.y(), minCube.z() - center.z());
-//                 glVertex3f(minCube.x() - center.x(), minCube.y() - center.y(), maxCube.z() - center.z());
-
-//                 glVertex3f(maxCube.x() - center.x(), minCube.y() - center.y(), minCube.z() - center.z());
-//                 glVertex3f(maxCube.x() - center.x(), minCube.y() - center.y(), maxCube.z() - center.z());
-
-//                 glVertex3f(maxCube.x() - center.x(), maxCube.y() - center.y(), minCube.z() - center.z());
-//                 glVertex3f(maxCube.x() - center.x(), maxCube.y() - center.y(), maxCube.z() - center.z());
-
-//                 glVertex3f(minCube.x() - center.x(), maxCube.y() - center.y(), minCube.z() - center.z());
-//                 glVertex3f(minCube.x() - center.x(), maxCube.y() - center.y(), maxCube.z() - center.z());
-
-//                 glEnd();
-//             }
-//         }
-//     }
-
-//     // 禁用虚线模式
-//     glDisable(GL_LINE_STIPPLE);
-
-//     // 重新启用光照
-//     glEnable(GL_LIGHTING);
-// }
-
 
 void Model::recomputeAll()
 {
@@ -541,6 +525,7 @@ void Model::recomputeAll()
     m_size   = QVector3D(maxX-minX, maxY-minY, maxZ-minZ);
     m_center = QVector3D((minX+maxX)/2, (minY+maxY)/2, (minZ+maxZ)/2);
 
+    //max、min 为距离到坐标原点的最大最小值
     m_min = QVector3D(minX, minY, minZ);
     m_max = QVector3D(maxX, maxY, maxZ);
 

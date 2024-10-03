@@ -25,6 +25,8 @@ public:
 
     //渲染模型，可以选择是否显示线框、法线和G代码运动/线条
     void render(bool wireframe = false, bool normals = false);
+    //绘制模型的包围盒
+    void drawBoundingBox();
     //应用变换矩阵到模型
     //void transform(QMatrix4x4 matrix);
     void transform(const QMatrix4x4 &matrix); //多模型累计变换矩阵
@@ -63,8 +65,6 @@ private:
     void loadObj(QFile &file);
     void loadStl(QFile &file);
 
-    //绘制模型的包围盒
-    void drawBoundingBox();
     //计算模型的边
     void computeEdges();
     //重新计算所有相关数据

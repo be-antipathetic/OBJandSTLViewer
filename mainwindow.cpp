@@ -21,6 +21,7 @@ MainWindow::MainWindow(QWidget *parent)
     statusLabel->setText("Default model");
     ui->statusbar->addWidget(statusLabel);
 
+
     connectSignalsSlots();
 }
 
@@ -35,6 +36,7 @@ void MainWindow::connectSignalsSlots()
 
     //读取指定路径模型文件，加载模型。 设置模型颜色与背景颜色
     QObject::connect(ui->actionOpen, &QAction::triggered, glScene, &OpenGLScene::openloadModel);
+    QObject::connect(ui->actionClearModels,&QAction::triggered,glScene,&OpenGLScene::clearModels);
     QObject::connect(ui->actionsetBackgroundColor,&QAction::triggered,glScene,&OpenGLScene::setBackgroundColor);
     QObject::connect(ui->actionsetModelColor,&QAction::triggered,glScene,&OpenGLScene::setModelColor);
     //QObject::connect(ui->checkbox_wireframe,&QCheckBox::toggled,glScene,&OpenGLScene::enableWireframe);
