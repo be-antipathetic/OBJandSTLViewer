@@ -24,19 +24,29 @@
 
 **使用方法：**
 
-1.  **切换到 version-705 分支：**
-    ```bash
-    git checkout version-705
-    ```
-2.  **使用 `loadModel()` 和 `loadSea()` 方法加载模型和海面数据。**
-3.  **使用 `clearModels()` 方法清除模型数据。**
+1. **切换到 version-705 分支：**
+   ```bash
+   git checkout version-705
+   ```
 
+2. **使用 `loadModel()` 和 `loadSea()` 方法加载模型和海面数据。**
 
-**未来计划：**
+3. **使用 `clearModels()` 方法清除模型数据。**
 
-* 完善海面数据的加载和渲染功能。
-* 添加更多模型和海面数据的管理功能。
+4. **修改 .pro 文件中的内容,确保正确使用外部库**
 
-**贡献者：**
+   ```c++
+   # 确保正确链接 MinGW 版本的 FreeGLUT
+   win32:CONFIG(release, debug|release): LIBS += -L$$PWD/freeglut/lib/x64/ -lfreeglut
+   else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/freeglut/lib/x64/ -lfreeglut
+   
+   # 指定 FreeGLUT 头文件路径
+   INCLUDEPATH += $$PWD/freeglut/include
+   #将 dll 复制到编译文件中
+   win32: CONFIG(release, debug|release): \
+       !system(copy /y $$PWD/freeglut/bin/x64/freeglut.dll $$OUT_PWD)
+   else:win32: CONFIG(debug, debug|release): \
+       !system(copy /y $$PWD/freeglut/bin/x64/freeglut.dll $$OUT_PWD)
+   ```
 
-* [你的名字]
+5. 如果运行程序后报错 `由于找不到 freeglut.dl，无法继续执行代码。重新安装程序可能会解决此问题。`，将 /bin/x64/文件夹下的 freeglut.dll 库放入`build\Desktop_Qt_5_15_2_MinGW_64_bit-Debug\debug` 文件中即可

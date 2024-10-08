@@ -34,8 +34,15 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
+# 确保正确链接 MinGW 版本的 FreeGLUT
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/freeglut/lib/x64/ -lfreeglut
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/freeglut/lib/x64/ -lfreeglut
 
-INCLUDEPATH += $$PWD/freeglut/lib/x64
-DEPENDPATH += $$PWD/freeglut/lib/x64
+# 指定 FreeGLUT 头文件路径
+INCLUDEPATH += $$PWD/freeglut/include
+DEPENDPATH += $$PWD/freeglut/include
+
+win32: CONFIG(release, debug|release): \
+    !system(copy /y $$PWD/freeglut/bin/x64/freeglut.dll $$OUT_PWD)
+else:win32: CONFIG(debug, debug|release): \
+    !system(copy /y $$PWD/freeglut/bin/x64/freeglut.dll $$OUT_PWD)
