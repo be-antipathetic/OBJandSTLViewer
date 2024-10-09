@@ -55,6 +55,8 @@ public slots:
     void loaddefaultModel(const QString &filepath);
     void modelLoaded();
 
+    //设置否会绘制包围盒
+    void setBoundingBox();
     //清空 Map 模型容器
     void clearModels();
 

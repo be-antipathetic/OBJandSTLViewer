@@ -5,6 +5,8 @@
 Model::Model(const QString &filePath)
     : m_fileName(QFileInfo(filePath).fileName())
 {
+    //初始化模型时将收否绘制包围盒bool默认为false
+    this->m_ifBoundingBox = false;
     QFile file(filePath);
     if (!file.open(QIODevice::ReadOnly))
     {

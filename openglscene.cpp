@@ -651,7 +651,10 @@ void OpenGLScene::drawBackground(QPainter *painter, const QRectF &)
          Model* model = i.value();
         if (model) {
             if (i.key() == "Model") {
+                if(model->m_ifBoundingBox) //如果设置了绘制模型包围盒，则再绘制包围盒
+                {
                 model->drawBoundingBox(); // 调用 drawboundingbox 方法
+                }
             }
             // 调整光照或位置以避免模型重叠 (可选)
             const float pos[] = { float(m_lightItem->x() - width() / 2), float(height() / 2 - m_lightItem->y()), 512, 0 };
@@ -1132,6 +1135,16 @@ void OpenGLScene::scale(double value)
         }
     }
     update();
+}
+//设置是否展示包围盒
+void OpenGLScene::setBoundingBox()
+{
+    //查找key=model 对应的键值并修改bool量
+    auto i = m_models.find("Model");
+    if (i != m_models.end()) {
+        qDebug() << "i.value()->m_ifBoundingBox" << i.value()->m_ifBoundingBox;
+        i.value()->m_ifBoundingBox = !i.value()->m_ifBoundingBox;
+    }
 }
 //清空模型容器
 void OpenGLScene::clearModels()

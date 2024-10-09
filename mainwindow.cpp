@@ -39,6 +39,7 @@ void MainWindow::connectSignalsSlots()
     QObject::connect(ui->actionClearModels,&QAction::triggered,glScene,&OpenGLScene::clearModels);
     QObject::connect(ui->actionsetBackgroundColor,&QAction::triggered,glScene,&OpenGLScene::setBackgroundColor);
     QObject::connect(ui->actionsetModelColor,&QAction::triggered,glScene,&OpenGLScene::setModelColor);
+    QObject::connect(ui->actionBoundingBox,&QAction::triggered,glScene,&OpenGLScene::setBoundingBox);
     //QObject::connect(ui->checkbox_wireframe,&QCheckBox::toggled,glScene,&OpenGLScene::enableWireframe);
 
 }

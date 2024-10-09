@@ -25,8 +25,12 @@ public:
 
     //渲染模型，可以选择是否显示线框、法线和G代码运动/线条
     void render(bool wireframe = false, bool normals = false);
+
     //绘制模型的包围盒
     void drawBoundingBox();
+    //模型包围盒真值,为真值则绘制模型的包围盒
+    bool m_ifBoundingBox;
+
     //应用变换矩阵到模型
     //void transform(QMatrix4x4 matrix);
     void transform(const QMatrix4x4 &matrix); //多模型累计变换矩阵

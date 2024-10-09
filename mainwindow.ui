@@ -56,6 +56,7 @@
     </property>
     <addaction name="actionsetBackgroundColor"/>
     <addaction name="actionsetModelColor"/>
+    <addaction name="actionBoundingBox"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuSetting"/>
@@ -84,6 +85,11 @@
   <action name="actionClearModels">
    <property name="text">
     <string>清除模型</string>
+   </property>
+  </action>
+  <action name="actionBoundingBox">
+   <property name="text">
+    <string>打开包围盒</string>
    </property>
   </action>
  </widget>
