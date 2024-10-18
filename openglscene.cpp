@@ -40,7 +40,7 @@ OpenGLScene::OpenGLScene(QWidget *parent)
     , m_normalsEnabled(false)
     , m_modelColor(153, 255, 0)
     , m_backgroundColor(233,240,250)
-    // , m_model(0)
+    , m_model(0)
     // , m_distance(1.4f)
 {
 #ifdef QUATERNION_CAMERA
@@ -94,7 +94,7 @@ OpenGLScene::OpenGLScene(QWidget *parent)
     statistics->layout()->addWidget(posGroupBox);
     statistics->layout()->addWidget(rotGroupBox);
     statistics->layout()->addWidget(scaleGroupBox);
-    statistics->setVisible(false);
+    statistics->setVisible(true);
 
     // ================= Merge dialogs ==================
     QWidget *widgets[] = {statistics};
@@ -629,32 +629,32 @@ void OpenGLScene::drawBackground(QPainter *painter, const QRectF &)
     //drawGrid();
     //drawBox();
     drawAxis();
-    // if (m_model)
-    // {
-    //     const float pos[] = { float(m_lightItem->x() - width() / 2), float(height() / 2 - m_lightItem->y()), 512, 0 };
-    //     glLightfv(GL_LIGHT0, GL_POSITION, pos);
-    //     glColor4f(m_modelColor.redF(), m_modelColor.greenF(), m_modelColor.blueF(), 1.0f);
+    if (m_model)
+    {
+        const float pos[] = { float(m_lightItem->x() - width() / 2), float(height() / 2 - m_lightItem->y()), 512, 0 };
+        glLightfv(GL_LIGHT0, GL_POSITION, pos);
+        glColor4f(m_modelColor.redF(), m_modelColor.greenF(), m_modelColor.blueF(), 1.0f);
 
-    //     glEnable(GL_MULTISAMPLE);
-    //     m_model->render(m_wireframeEnabled, m_normalsEnabled);
-    //     glDisable(GL_MULTISAMPLE);
+        glEnable(GL_MULTISAMPLE);
+        m_model->render(m_wireframeEnabled, m_normalsEnabled);
+        glDisable(GL_MULTISAMPLE);
 
-    // }
-
-    // 渲染所有模型
-    for (const auto& model : m_models) {
-        if (model) {
-            // 调整光照或位置以避免模型重叠 (可选)
-            const float pos[] = { float(m_lightItem->x() - width() / 2), float(height() / 2 - m_lightItem->y()), 512, 0 };
-            glLightfv(GL_LIGHT0, GL_POSITION, pos);
-
-            glColor4f(m_modelColor.redF(), m_modelColor.greenF(), m_modelColor.blueF(), 1.0f);
-
-            glEnable(GL_MULTISAMPLE);
-            model->render(m_wireframeEnabled, m_normalsEnabled);
-            glDisable(GL_MULTISAMPLE);
-        }
     }
+
+    // // 渲染所有模型
+    // for (const auto& model : m_models) {
+    //     if (model) {
+    //         // 调整光照或位置以避免模型重叠 (可选)
+    //         const float pos[] = { float(m_lightItem->x() - width() / 2), float(height() / 2 - m_lightItem->y()), 512, 0 };
+    //         glLightfv(GL_LIGHT0, GL_POSITION, pos);
+
+    //         glColor4f(m_modelColor.redF(), m_modelColor.greenF(), m_modelColor.blueF(), 1.0f);
+
+    //         glEnable(GL_MULTISAMPLE);
+    //         model->render(m_wireframeEnabled, m_normalsEnabled);
+    //         glDisable(GL_MULTISAMPLE);
+    //     }
+    // }
  // ========== added (end)   ===========
 
     //回复矩阵状态
@@ -849,14 +849,14 @@ void OpenGLScene::enableWireframe(bool enabled)
 
 void OpenGLScene::setModel(Model *model)
 {
-    // delete m_model;
-    // m_model = model;
     if(!model)
     {
         return;
     }
+    // delete m_model;
+    m_model = model;
     // 添加新模型到列表中
-    m_models.append(model);
+    //m_models.append(model);
 
     // m_labels[0]->setText(tr("File:   %0").arg(m_model->fileName()));
     // m_labels[1]->setText(tr("Points: %0").arg(m_model->points()));
@@ -979,15 +979,16 @@ void OpenGLScene::translateX(int value)
     // 创建平移矩阵
     QMatrix4x4 m;
     m.translate(value, 0, 0);  // 在 X 方向上平移
+    m_model->transform(m);
 
     // 遍历 m_models 列表，对每个模型应用 transform
-    for (int i = 0; i < m_models.size(); ++i)
-    {
-        Model* model = m_models[i];
-        if (model) {
-            model->transform(m);  // 应用平移变换到每个模型
-        }
-    }
+    // for (int i = 0; i < m_models.size(); ++i)
+    // {
+    //     Model* model = m_models[i];
+    //     if (model) {
+    //         model->transform(m);  // 应用平移变换到每个模型
+    //     }
+    // }
 
     // 触发场景重绘
     update();
@@ -998,14 +999,14 @@ void OpenGLScene::translateY(int value)
     qDebug() << Q_FUNC_INFO << value;
     QMatrix4x4 m;
     m.translate(0, value, 0);
-    // m_model->transform(m);
-    for (int i = 0; i < m_models.size(); ++i)
-    {
-        Model* model = m_models[i];
-        if (model) {
-            model->transform(m);
-        }
-    }
+    m_model->transform(m);
+    // for (int i = 0; i < m_models.size(); ++i)
+    // {
+    //     Model* model = m_models[i];
+    //     if (model) {
+    //         model->transform(m);
+    //     }
+    // }
     update();
 }
 
@@ -1014,14 +1015,14 @@ void OpenGLScene::translateZ(int value)
     qDebug() << Q_FUNC_INFO << value;
     QMatrix4x4 m;
     m.translate(0, 0, value);
-    // m_model->transform(m);
-    for (int i = 0; i < m_models.size(); ++i)
-    {
-        Model* model = m_models[i];
-        if (model) {
-            model->transform(m);
-        }
-    }
+    m_model->transform(m);
+    // for (int i = 0; i < m_models.size(); ++i)
+    // {
+    //     Model* model = m_models[i];
+    //     if (model) {
+    //         model->transform(m);
+    //     }
+    // }
     update();
 }
 
@@ -1030,14 +1031,14 @@ void OpenGLScene::rotateX(int value)
     qDebug() << Q_FUNC_INFO << value;
     QMatrix4x4 m;
     m.rotate(value, 1, 0, 0);
-    // m_model->transform(m);
-    for (int i = 0; i < m_models.size(); ++i)
-    {
-        Model* model = m_models[i];
-        if (model) {
-            model->transform(m);
-        }
-    }
+     m_model->transform(m);
+    // for (int i = 0; i < m_models.size(); ++i)
+    // {
+    //     Model* model = m_models[i];
+    //     if (model) {
+    //         model->transform(m);
+    //     }
+    // }
 
     update();
 }
@@ -1047,14 +1048,14 @@ void OpenGLScene::rotateY(int value)
     qDebug() << Q_FUNC_INFO << value;
     QMatrix4x4 m;
     m.rotate(value, 0, 1, 0);
-    // m_model->transform(m);
-    for (int i = 0; i < m_models.size(); ++i)
-    {
-        Model* model = m_models[i];
-        if (model) {
-            model->transform(m);
-        }
-    }
+    m_model->transform(m);
+    // for (int i = 0; i < m_models.size(); ++i)
+    // {
+    //     Model* model = m_models[i];
+    //     if (model) {
+    //         model->transform(m);
+    //     }
+    // }
 
     update();
 }
@@ -1064,14 +1065,14 @@ void OpenGLScene::rotateZ(int value)
     qDebug() << Q_FUNC_INFO << value;
     QMatrix4x4 m;
     m.rotate(value, 0, 0, 1);
-    // m_model->transform(m);
-    for (int i = 0; i < m_models.size(); ++i)
-    {
-        Model* model = m_models[i];
-        if (model) {
-            model->transform(m);
-        }
-    }
+    m_model->transform(m);
+    // for (int i = 0; i < m_models.size(); ++i)
+    // {
+    //     Model* model = m_models[i];
+    //     if (model) {
+    //         model->transform(m);
+    //     }
+    // }
 
     update();
 }
@@ -1082,14 +1083,14 @@ void OpenGLScene::scale(double value)
     qDebug() << Q_FUNC_INFO << value;
     QMatrix4x4 m;
     m.scale(value, value, value);
-    // m_model->transform(m);
-    for (int i = 0; i < m_models.size(); ++i)
-    {
-        Model* model = m_models[i];
-        if (model) {
-            model->transform(m);
-        }
-    }
+     m_model->transform(m);
+    // for (int i = 0; i < m_models.size(); ++i)
+    // {
+    //     Model* model = m_models[i];
+    //     if (model) {
+    //         model->transform(m);
+    //     }
+    // }
     update();
 }
 

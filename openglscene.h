@@ -84,8 +84,8 @@ private:
     QColor m_backgroundColor;
 
     //模型对象
-    // Model *m_model;
-    QList<Model*> m_models;
+    Model *m_model;
+    //QList<Model*> m_models;
 
     //用来展示标签，展示文件名，点、面、线的数量
     QLabel *m_labels[4];

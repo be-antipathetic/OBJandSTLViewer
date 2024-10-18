@@ -27,57 +27,58 @@ Model::~Model()
 
 }
 
-// void Model::transform(QMatrix4x4 matrix)
-// {
-//     m_transform = matrix;
-//     if (m_vertices.empty())
-//         return;
-
-
-//     // 创建一个局部变量 v，用于存储变换后的顶点
-//     QVector<QVector3D> v;
-
-//     //使用 OpenMP 并行化顶点的赋值操作
-//     #pragma omp parallel for
-//     v = m_vertices;
-
-//     // 获取 v 的起始和结束迭代器
-//     auto it = v.end(), end = v.begin();
-
-//     // 逆向遍历顶点并应用变换矩阵
-//     while ( it != end )
-//     {
-//         // qDebug() << "X: " << ((QVector3D*)it)->x();
-//         *it = matrix * *it;
-//         --it;
-//     }
-
-//     // 将变换后的顶点赋值给 m_verticesNew
-//     m_verticesNew = v;
-
-//     // 重新计算所有相关数据，更新
-//     recomputeAll();
-// }
-
 void Model::transform(const QMatrix4x4& matrix)
 {
-    // 累积应用变换矩阵
-    m_transform *= matrix;
-
+    m_transform = matrix;
     if (m_vertices.empty())
         return;
 
-    // 更新顶点
-    QVector<QVector3D> transformedVertices = m_vertices;
-    for (int i = 0; i < transformedVertices.size(); ++i) {
-        transformedVertices[i] = m_transform * transformedVertices[i];
+
+    // 创建一个局部变量 v，用于存储变换后的顶点
+    QVector<QVector3D> v;
+
+    //使用 OpenMP 并行化顶点的赋值操作
+    #pragma omp parallel for
+    v = m_vertices;
+
+    // 获取 v 的起始和结束迭代器
+    auto it = v.end(), end = v.begin();
+
+    // 逆向遍历顶点并应用变换矩阵
+    while ( it != end )
+    {
+        // qDebug() << "X: " << ((QVector3D*)it)->x();
+        *it = matrix * *it;
+        --it;
     }
 
-    m_verticesNew = transformedVertices;
+    // 将变换后的顶点赋值给 m_verticesNew
+    m_verticesNew = v;
 
-    // 更新包围盒或其他需要重新计算的数据
+    // 重新计算所有相关数据，更新
     recomputeAll();
 }
+
+
+// void Model::transform(const QMatrix4x4& matrix)
+// {
+//     // 累积应用变换矩阵
+//     m_transform *= matrix;
+
+//     if (m_vertices.empty())
+//         return;
+
+//     // 更新顶点
+//     QVector<QVector3D> transformedVertices = m_vertices;
+//     for (int i = 0; i < transformedVertices.size(); ++i) {
+//         transformedVertices[i] = m_transform * transformedVertices[i];
+//     }
+
+//     m_verticesNew = transformedVertices;
+
+//     // 更新包围盒或其他需要重新计算的数据
+//     recomputeAll();
+// }
 
 
 
@@ -86,10 +87,10 @@ void Model::transform(const QMatrix4x4& matrix)
 void Model::render(bool wireframe, bool normals)
 {
 //==================================================================================
-    glPushMatrix();  // 保存当前矩阵
+     glPushMatrix();  // 保存当前矩阵
 
     // 应用模型的变换矩阵
-    glMultMatrixf(m_transform.constData());
+    //glMultMatrixf(m_transform.constData());
 //==================================================================================
     //启用深度测试，OpenGL 会比较当前要绘制的像素的深度值与已经绘制在相同位置的像素的深度值。
     //如果当前像素的深度值更小（更靠近观察者），那么它就会覆盖掉原来的像素；否则，它就会被丢弃。
@@ -138,6 +139,7 @@ void Model::render(bool wireframe, bool normals)
     //禁用顶点数组
     glDisableClientState(GL_VERTEX_ARRAY);
 
+    glPushMatrix();  // 保存当前矩阵
     drawBoundingBox();
 
     glPopMatrix();
@@ -146,6 +148,8 @@ void Model::render(bool wireframe, bool normals)
     glEnable(GL_LIGHT0);
 
 }
+
+
 
 //读取obj文件
 void Model::loadObj(QFile &file)
