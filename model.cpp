@@ -91,7 +91,7 @@ void Model::render(bool wireframe, bool normals)
     glPushMatrix();  // 保存当前矩阵
 
     // 应用模型的变换矩阵
-    glMultMatrixf(m_transform.constData());
+    //glMultMatrixf(m_transform.constData());
 //==================================================================================
     //启用深度测试，OpenGL 会比较当前要绘制的像素的深度值与已经绘制在相同位置的像素的深度值。
     //如果当前像素的深度值更小（更靠近观察者），那么它就会覆盖掉原来的像素；否则，它就会被丢弃。

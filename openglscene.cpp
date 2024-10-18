@@ -41,6 +41,7 @@ OpenGLScene::OpenGLScene(QWidget *parent)
     , m_wireframeEnabled(false)
     , m_normalsEnabled(false)
     , m_modelColor(153, 255, 0)
+    , m_seamodelColor(0, 0, 255)
     , m_backgroundColor(233,240,250)
     // , m_model(0)
     // , m_distance(1.4f)
@@ -99,7 +100,7 @@ OpenGLScene::OpenGLScene(QWidget *parent)
     statistics->layout()->addWidget(posGroupBox);
     statistics->layout()->addWidget(rotGroupBox);
     statistics->layout()->addWidget(scaleGroupBox);
-    statistics->setVisible(false);
+    statistics->setVisible(true);
 
     // ================= Merge dialogs ==================
     QWidget *widgets[] = {statistics};
@@ -649,18 +650,23 @@ void OpenGLScene::drawBackground(QPainter *painter, const QRectF &)
     // 渲染所有模型
     for (auto i = m_models.begin(); i != m_models.end(); ++i){
          Model* model = i.value();
-        if (model) {
-            if (i.key() == "Model") {
+        if (model)
+         {
+            if (i.key() == "Model")
+            {
+                glColor4f(m_modelColor.redF(), m_modelColor.greenF(), m_modelColor.blueF(), 1.0f);
                 if(model->m_ifBoundingBox) //如果设置了绘制模型包围盒，则再绘制包围盒
                 {
                 model->drawBoundingBox(); // 调用 drawboundingbox 方法
                 }
             }
+            else{
+                glColor4f(m_seamodelColor.redF(), m_seamodelColor.greenF(), m_seamodelColor.blueF(), 1.0f);
+
+            }
             // 调整光照或位置以避免模型重叠 (可选)
             const float pos[] = { float(m_lightItem->x() - width() / 2), float(height() / 2 - m_lightItem->y()), 512, 0 };
             glLightfv(GL_LIGHT0, GL_POSITION, pos);
-
-            glColor4f(m_modelColor.redF(), m_modelColor.greenF(), m_modelColor.blueF(), 1.0f);
 
             glEnable(GL_MULTISAMPLE);
             model->render(m_wireframeEnabled, m_normalsEnabled);

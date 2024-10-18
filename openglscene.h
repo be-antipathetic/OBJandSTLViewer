@@ -91,6 +91,7 @@ private:
 
     //模型与背景颜色变量
     QColor m_modelColor;
+    QColor m_seamodelColor;
     QColor m_backgroundColor;
 
     //模型对象
